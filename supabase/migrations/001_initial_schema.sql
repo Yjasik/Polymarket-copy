@@ -1,0 +1,4 @@
+-- ============================================================
+-- POLYMARKET - Supabase Initial Schema
+-- Safe to re-run: uses DROP IF EXISTS + CREATE IF NOT EXISTS
+-- ============================================================

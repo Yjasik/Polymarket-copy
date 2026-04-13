@@ -1,0 +1,303 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   DESIGN TOKENS
+============================================================ */
+:root {
+  --bg:          #f8fafc;
+  --bg-card:     #ffffff;
+  --fg:          #0f172a;
+  --fg-muted:    #64748b;
+  --border:      #e2e8f0;
+  --border-soft: #f1f5f9;
+  --primary:     #6366f1;
+  --primary-fg:  #ffffff;
+  --yes:         #10b981;
+  --no:          #f43f5e;
+  --radius:      12px;
+  --radius-lg:   16px;
+  --radius-xl:   20px;
+}
+
+/* ============================================================
+   BASE RESET
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: "Inter", system-ui, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: #f1f5f9; }
+::-webkit-scrollbar-thumb  { background: #c7d7fe; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+
+/* ============================================================
+   RAINBOWKIT OVERRIDES
+============================================================ */
+[data-rk] {
+  --rk-colors-accentColor:              #6366f1 !important;
+  --rk-colors-accentColorForeground:    #ffffff !important;
+  --rk-colors-connectButtonBackground:  #f0f4ff !important;
+  --rk-colors-connectButtonText:        #4f46e5 !important;
+  --rk-colors-connectButtonInnerBackground: #ffffff !important;
+  --rk-colors-modalBackground:          #ffffff !important;
+  --rk-colors-modalBorder:              #e0eaff !important;
+  --rk-colors-modalText:                #0f172a !important;
+  --rk-colors-modalTextSecondary:       #64748b !important;
+  --rk-colors-menuItemBackground:       #f8fafc !important;
+}
+
+/* ============================================================
+   COMPONENT UTILITIES
+============================================================ */
+@layer utilities {
+
+  /* ---- Typography ---- */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary-600 to-cyan-500 bg-clip-text text-transparent;
+  }
+  .text-gradient-yes {
+    @apply bg-gradient-to-r from-yes-600 to-yes-400 bg-clip-text text-transparent;
+  }
+  .text-gradient-no {
+    @apply bg-gradient-to-r from-no-600 to-no-400 bg-clip-text text-transparent;
+  }
+
+  /* ---- Cards ---- */
+  .card {
+    @apply bg-white border border-surface-200 rounded-2xl shadow-card;
+  }
+  .card-hover {
+    @apply transition-all duration-300 ease-spring hover:shadow-card-hover hover:-translate-y-0.5 hover:border-primary-200;
+  }
+  .card-glass {
+    @apply bg-white/80 backdrop-blur-sm border border-white/60 rounded-2xl shadow-glass;
+  }
+  .card-inset {
+    @apply bg-surface-50 border border-surface-200 rounded-xl;
+  }
+
+  /* ---- Buttons ---- */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-gradient-primary text-white font-semibold
+           px-5 py-2.5 rounded-xl shadow-primary
+           transition-all duration-200 ease-spring
+           hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-white text-surface-700 font-medium
+           border border-surface-200 px-5 py-2.5 rounded-xl shadow-card
+           transition-all duration-200 ease-spring
+           hover:border-primary-300 hover:text-primary-600 hover:bg-primary-50 hover:shadow-card-hover
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           text-surface-600 font-medium px-4 py-2 rounded-xl
+           transition-all duration-200
+           hover:bg-surface-100 hover:text-surface-900
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-yes {
+    @apply inline-flex items-center justify-center gap-2
+           bg-gradient-yes text-white font-semibold
+           px-5 py-2.5 rounded-xl shadow-yes
+           transition-all duration-200 ease-spring
+           hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-no {
+    @apply inline-flex items-center justify-center gap-2
+           bg-gradient-no text-white font-semibold
+           px-5 py-2.5 rounded-xl shadow-no
+           transition-all duration-200 ease-spring
+           hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2
+           bg-no-50 text-no-600 font-medium
+           border border-no-200 px-5 py-2.5 rounded-xl
+           transition-all duration-200
+           hover:bg-no-100 hover:border-no-300
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* ---- Form inputs ---- */
+  .input-field {
+    @apply w-full bg-white border border-surface-200 text-surface-900
+           placeholder-surface-500 rounded-xl px-4 py-2.5
+           focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-400
+           transition-all duration-200 text-sm shadow-inner-glow;
+  }
+
+  /* ---- Badges ---- */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full
+           text-xs font-semibold border tracking-wide;
+  }
+  .badge-primary {
+    @apply bg-primary-50 text-primary-700 border-primary-200;
+  }
+  .badge-yes {
+    @apply bg-yes-50 text-yes-700 border-yes-200;
+  }
+  .badge-no {
+    @apply bg-no-50 text-no-700 border-no-200;
+  }
+  .badge-amber {
+    @apply bg-amber-50 text-amber-700 border-amber-200;
+  }
+  .badge-cyan {
+    @apply bg-cyan-50 text-cyan-700 border-cyan-200;
+  }
+  .badge-surface {
+    @apply bg-surface-100 text-surface-600 border-surface-300;
+  }
+
+  /* ---- Section containers ---- */
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .section-padding {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  /* ---- Stat tiles ---- */
+  .stat-tile {
+    @apply card p-5 flex flex-col gap-1 text-center;
+  }
+
+  /* ---- Divider ---- */
+  .divider {
+    @apply border-t border-surface-200;
+  }
+
+  /* ---- Chip pill ---- */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+           text-xs font-medium bg-surface-100 text-surface-600 border border-surface-200;
+  }
+
+  /* ---- Progress bar ---- */
+  .progress-track {
+    @apply h-2 rounded-full bg-surface-100 overflow-hidden;
+  }
+  .progress-yes {
+    @apply h-full rounded-full bg-gradient-yes transition-all duration-700;
+  }
+}
+
+/* ============================================================
+   LOADING SKELETON
+============================================================ */
+.skeleton {
+  background: linear-gradient(90deg,
+    #f1f5f9 25%,
+    #e8edf5 50%,
+    #f1f5f9 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+  border-radius: 8px;
+}
+
+/* ============================================================
+   CHART CONTAINER
+============================================================ */
+.tv-chart-container {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e8edf5;
+}
+
+/* ============================================================
+   FUTURISTIC ACCENT ORBS (hero background)
+============================================================ */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.45;
+}
+.orb-primary { background: radial-gradient(circle, #a5b8fc, #6366f1); }
+.orb-cyan    { background: radial-gradient(circle, #67e8f9, #06b6d4); }
+.orb-yes     { background: radial-gradient(circle, #6ee7b7, #10b981); }
+
+/* ============================================================
+   ANIMATED GRADIENT BORDER
+============================================================ */
+.gradient-border {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: white;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #6366f1, #06b6d4, #10b981);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.gradient-border:hover::before { opacity: 1; }
+
+/* ============================================================
+   PRICE BAR ANIMATION
+============================================================ */
+@keyframes barGrow {
+  from { width: 0; }
+  to   { width: var(--bar-width); }
+}
+.bar-animate { animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+/* ============================================================
+   GLASSMORPHISM HERO CARD
+============================================================ */
+.hero-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 4px 6px rgba(99,102,241,0.04),
+    0 24px 64px rgba(99,102,241,0.08);
+}
+
+/* ============================================================
+   STEP CONNECTOR LINE
+============================================================ */
+.step-line {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #c7d7fe, #a5f3fc);
+}
