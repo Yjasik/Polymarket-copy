@@ -2,11 +2,11 @@
 
 ![alt text](https://www.daulathussain.com/wp-content/uploads/2026/04/Create-Deploy-Polymarket-Clone-🚀-Next.js-Solidity-TypeScript-Supabase-Web3-Project-2026.jpg)
 
-- [Final Source Code]()
+- [Final Source Code](https://www.theblockchaincoders.com/sourceCode/create-and-deploy-polymarket-clone-next.js-solidity-typescript-and-supabase-or-web3-project-2026)
 
 #### Setup Video
 
-- [Final Code Setup video]()
+- [Final Code Setup video](https://youtu.be/b6xhapLhrzE?si=fBnsU_cRWQvOTAoC)
 
 ## Project Overview
 
