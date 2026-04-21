@@ -6,3 +6,4 @@ deployments.json
 .env
 coverage/
 coverage.json
+.history/
