@@ -6,4 +6,5 @@ deployments.json
 .env
 coverage/
 coverage.json
-.history/
+.history/contracts/out/
+contracts/foundry.lock
