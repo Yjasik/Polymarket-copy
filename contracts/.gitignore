@@ -8,3 +8,5 @@ coverage/
 coverage.json
 .history/contracts/out/
 contracts/foundry.lock
+out/
+foundry.lock
