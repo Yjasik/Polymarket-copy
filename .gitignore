@@ -5,3 +5,4 @@ contracts/lib/forge-std/
 contracts/test/
 contracts/broadcast/
 supabase
+supabase
