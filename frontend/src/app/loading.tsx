@@ -1,7 +1,10 @@
-import React from 'react'
+// frontend/src/app/loading.tsx
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
-const loading = () => {
-  return <div>loading</div>
+export default function Loading() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <LoadingSpinner size="lg" />
+    </div>
+  );
 }
-
-export default loading

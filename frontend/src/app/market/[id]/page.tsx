@@ -4,13 +4,14 @@
 import { useParams } from 'next/navigation';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatEther, parseEther } from 'viem';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import predictionMarketAbi from '@/lib/PredictionMarketABI.json';
 import { type Abi } from 'viem';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { CountdownTimer } from '@/components/ui/CountdownTimer';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { PriceChart } from '@/components/charts/PriceChart';
 import { supabase } from '@/lib/supabase';
 import { AlertCircle, Clock, BarChart3, ImageOff } from 'lucide-react';
 import Link from 'next/link';
@@ -22,10 +23,12 @@ export default function MarketDetailPage() {
   const marketId = BigInt(params.id as string);
   const { address, isConnected } = useAccount();
 
-  // ---- Supabase: загрузка image_uri ----
+  // ---- Supabase: изображение и история цен ----
   const [metaImage, setMetaImage] = useState<string | null>(null);
   const [metaLoading, setMetaLoading] = useState(true);
+  const [priceHistory, setPriceHistory] = useState<{ time: number; value: number }[]>([]);
 
+  // Загрузка метаданных рынка (image_uri)
   useEffect(() => {
     const fetchMeta = async () => {
       setMetaLoading(true);
@@ -41,6 +44,26 @@ export default function MarketDetailPage() {
     };
     fetchMeta();
   }, [marketId]);
+
+  // Загрузка истории цен
+  const fetchPriceHistory = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('user_bets')
+      .select('created_at, yes_price')
+      .eq('market_id', Number(marketId))
+      .order('created_at', { ascending: true });
+    if (!error && data) {
+      const formatted = data.map((row: any) => ({
+        time: Math.floor(new Date(row.created_at).getTime() / 1000),
+        value: row.yes_price,
+      }));
+      setPriceHistory(formatted);
+    }
+  }, [marketId]);
+
+  useEffect(() => {
+    fetchPriceHistory();
+  }, [fetchPriceHistory]);
 
   // ---- Блокчейн ----
   const { data: marketData, isLoading: isLoadingMarket, error: marketError } = useReadContract({
@@ -61,11 +84,12 @@ export default function MarketDetailPage() {
   const { writeContractAsync, data: txHash, isPending: isTxPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
+  // Локальное состояние для формы ставки
   const [betAmount, setBetAmount] = useState('');
   const [betOutcome, setBetOutcome] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Типизация возвращаемых кортежей
+  // Парсинг данных рынка
   type MarketDataTuple = [string, string, bigint, number, bigint, bigint, bigint, boolean, boolean];
   const market = marketData
     ? {
@@ -87,9 +111,34 @@ export default function MarketDetailPage() {
 
   const totalPool = market?.totalPool ?? 0n;
   const yesPrice = totalPool > 0n ? Number(market?.totalYes ?? 0n) / Number(totalPool) : 0.5;
-  const noPrice = 1 - yesPrice;
 
-  // Обработчики
+  // Сохранение ставки в Supabase после подтверждения транзакции
+  const saveBetToSupabase = useCallback(async () => {
+    if (!txHash || !address || !betAmount || !market) return;
+    const { error } = await supabase.from('user_bets').insert({
+      user_address: address,
+      market_id: Number(marketId),
+      outcome: betOutcome,
+      amount: parseFloat(betAmount),
+      transaction_hash: txHash,
+      yes_price: yesPrice,
+    });
+    if (!error) {
+      fetchPriceHistory(); // обновить график
+    } else {
+      console.error('Failed to save bet to Supabase:', error);
+    }
+  }, [txHash, address, betAmount, betOutcome, yesPrice, marketId, market, fetchPriceHistory]);
+
+  useEffect(() => {
+    if (isConfirmed && txHash) {
+      saveBetToSupabase();
+      refetchBets();
+      setBetAmount(''); // очистить поле после сохранения
+    }
+  }, [isConfirmed, txHash, saveBetToSupabase, refetchBets]);
+
+  // Отправка ставки
   const handleBet = async () => {
     setError(null);
     if (!betAmount || parseFloat(betAmount) <= 0) {
@@ -104,15 +153,15 @@ export default function MarketDetailPage() {
         args: [marketId, betOutcome],
         value: parseEther(betAmount),
       });
-      setBetAmount('');
-      refetchBets();
     } catch (err: any) {
       setError(err.message || 'Transaction failed');
     }
   };
 
+  // Клейм выигрыша
   const handleClaim = async () => {
     try {
+      setError(null);
       await writeContractAsync({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
@@ -125,7 +174,7 @@ export default function MarketDetailPage() {
     }
   };
 
-  // UI: загрузка
+  // UI состояния загрузки
   if (isLoadingMarket || metaLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -155,14 +204,11 @@ export default function MarketDetailPage() {
         ← Back to markets
       </Link>
 
-      {/* Заголовок и изображение */}
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold">{market.question}</h1>
         {market.description && (
           <p className="mt-2 text-gray-500 dark:text-gray-400">{market.description}</p>
         )}
-
-        {/* Изображение, если загружено из Supabase */}
         {metaImage ? (
           <div className="mt-4 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
             <img
@@ -183,7 +229,6 @@ export default function MarketDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Основная колонка */}
         <div className="lg:col-span-2 space-y-6">
           {/* Информационная карточка */}
           <div className="rounded-lg border bg-white p-6 dark:bg-gray-950 dark:border-gray-800">
@@ -202,16 +247,13 @@ export default function MarketDetailPage() {
                   <p className="font-semibold">{formatEther(totalPool)} ETH</p>
                 </div>
               </div>
-              {market.resolved && (
-                <StatusBadge outcome={outcomeStr as any} />
-              )}
+              {market.resolved && <StatusBadge outcome={outcomeStr as any} />}
             </div>
 
-            {/* Прогресс-бар вероятности */}
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-green-600 dark:text-green-400">Yes {(yesPrice * 100).toFixed(1)}%</span>
-                <span className="text-red-600 dark:text-red-400">No {(noPrice * 100).toFixed(1)}%</span>
+                <span className="text-red-600 dark:text-red-400">No {((1 - yesPrice) * 100).toFixed(1)}%</span>
               </div>
               <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
@@ -225,6 +267,12 @@ export default function MarketDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* График вероятности */}
+          <PriceChart
+            data={priceHistory.length > 0 ? priceHistory : undefined}
+            currentPrice={priceHistory.length === 0 ? yesPrice : undefined}
+          />
 
           {/* Ставки пользователя */}
           {isConnected && (userBetYes > 0n || userBetNo > 0n) && (
@@ -249,21 +297,25 @@ export default function MarketDetailPage() {
                   {(market.outcome === 1 && userBetYes > 0n) || (market.outcome === 2 && userBetNo > 0n) ? (
                     <button
                       onClick={handleClaim}
-                      disabled={isTxPending || isConfirming}
-                      className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                     >
-                      {isTxPending || isConfirming ? 'Processing...' : 'Claim Winnings'}
+                      Claim Winnings
                     </button>
                   ) : (
                     <p className="text-sm text-red-500">You lost this bet</p>
                   )}
                 </div>
               )}
+              {error && (
+                <div className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" /> {error}
+                </div>
+              )}
             </div>
           )}
         </div>
 
-        {/* Боковая колонка – форма ставки */}
+        {/* Боковая колонка – форма ставки (без TradingPanel) */}
         {!market.resolved && (
           <div className="rounded-lg border bg-white p-6 dark:bg-gray-950 dark:border-gray-800">
             <h3 className="font-semibold mb-4">Place a Bet</h3>
@@ -279,7 +331,7 @@ export default function MarketDetailPage() {
                       type="button"
                       onClick={() => setBetOutcome(true)}
                       className={`flex-1 rounded-md px-3 py-2 text-sm font-medium border ${
-                        betOutcome === true
+                        betOutcome
                           ? 'bg-green-500 text-white border-green-500'
                           : 'bg-gray-100 dark:bg-gray-800'
                       }`}
@@ -290,12 +342,12 @@ export default function MarketDetailPage() {
                       type="button"
                       onClick={() => setBetOutcome(false)}
                       className={`flex-1 rounded-md px-3 py-2 text-sm font-medium border ${
-                        betOutcome === false
+                        !betOutcome
                           ? 'bg-red-500 text-white border-red-500'
                           : 'bg-gray-100 dark:bg-gray-800'
                       }`}
                     >
-                      No {(noPrice * 100).toFixed(1)}%
+                      No {((1 - yesPrice) * 100).toFixed(1)}%
                     </button>
                   </div>
                 </div>
@@ -312,6 +364,17 @@ export default function MarketDetailPage() {
                     placeholder="0.00"
                     className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
                   />
+                  {betAmount && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Potential payout if correct:{' '}
+                      {(() => {
+                        const price = betOutcome ? yesPrice : 1 - yesPrice;
+                        if (price === 0) return '0.0000';
+                        return (parseFloat(betAmount) / price).toFixed(4);
+                      })()}{' '}
+                      ETH
+                    </p>
+                  )}
                 </div>
 
                 {error && (
@@ -320,7 +383,7 @@ export default function MarketDetailPage() {
                   </div>
                 )}
                 {txHash && !isConfirmed && (
-                  <div className="text-sm text-blue-500">Transaction submitted... waiting for confirmation</div>
+                  <div className="text-sm text-blue-500">Transaction submitted...</div>
                 )}
                 {isConfirmed && (
                   <div className="text-sm text-green-600">Bet placed successfully!</div>
