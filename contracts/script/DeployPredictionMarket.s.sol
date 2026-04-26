@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {PredictionMarket} from "../src/PredictionMarket.sol";
 
