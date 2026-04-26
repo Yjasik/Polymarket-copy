@@ -11,5 +11,5 @@ export const config = getDefaultConfig({
     [sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL),
     [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_RPC_URL),
   },
-  ssr: true, // Включаем поддержку SSR (Next.js)
+  ssr: false, // Включаем поддержку SSR (Next.js)
 });

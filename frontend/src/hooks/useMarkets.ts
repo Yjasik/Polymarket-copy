@@ -7,7 +7,7 @@ import { formatEther } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import predictionMarketAbi from '@/lib/PredictionMarketABI.json';
 import { type Abi } from 'viem';
-import { CONTRACT_ADDRESS } from '@/constants/contract';
+import { CONTRACT_ADDRESS } from '@/lib/config';
 import { Market } from '@/types';
 import { formatTimeRemaining } from '@/lib/utils';
 
@@ -53,6 +53,7 @@ export function useMarkets(options: UseMarketsOptions = {}): UseMarketsResult {
       }
       
       const { data, error } = await query;
+      console.log('Supabase response:', data);
       if (error) throw error;
       setSupabaseMarkets(data || []);
     } catch (err) {
