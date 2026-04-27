@@ -1,4 +1,3 @@
-// frontend/src/app/ClientProviders.tsx
 'use client';
 
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';

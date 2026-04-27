@@ -1,4 +1,3 @@
-// frontend/src/app/validator/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -26,7 +25,6 @@ export default function ValidatorPage() {
   const { writeContractAsync, data: txHash, isPending: isTxPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
-  // Проверка роли оракула
   const { data: isOracle, isLoading: isCheckingRole } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
@@ -35,20 +33,16 @@ export default function ValidatorPage() {
     query: { enabled: !!address },
   });
 
-  // Загрузка всех рынков (без фильтра разрешённых)
   const { markets, isLoading: isLoadingMarkets, error: marketsError } = useMarkets({ limit: 100 });
 
-  // Фильтрация рынков, которые можно разрешить: не разрешены и время истекло
   const resolvableMarkets = markets?.filter(
     (m) => !m.resolved && Date.now() / 1000 >= Number(m.endTime)
   );
 
-  // Поиск по вопросу
   const filteredMarkets = resolvableMarkets?.filter((m) =>
     m.question.toLowerCase().includes(searchTerm.toLowerCase())
   ) ?? [];
 
-  // Обработчик разрешения рынка
   const handleResolve = async () => {
     setError(null);
     if (!selectedMarketId || winningOutcome === null) {
@@ -69,7 +63,6 @@ export default function ValidatorPage() {
     }
   };
 
-  // UI состояния
   if (!isConnected) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -110,7 +103,6 @@ export default function ValidatorPage() {
         </p>
       </div>
 
-      {/* Инструменты разрешения */}
       <div className="rounded-lg border bg-white p-6 dark:bg-gray-950 dark:border-gray-800 mb-8">
         <h2 className="font-semibold mb-4">Resolve a Market</h2>
         <div className="space-y-4">
@@ -173,7 +165,6 @@ export default function ValidatorPage() {
         </div>
       </div>
 
-      {/* Список рынков, ожидающих разрешения */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Pending Resolution</h2>

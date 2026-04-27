@@ -1,4 +1,3 @@
-// frontend/src/hooks/useMarkets.ts
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -33,7 +32,6 @@ export function useMarkets(options: UseMarketsOptions = {}): UseMarketsResult {
   const [isLoadingSupabase, setIsLoadingSupabase] = useState(true);
   const [supabaseError, setSupabaseError] = useState<Error | null>(null);
 
-  // Загрузка метаданных из Supabase
   const fetchSupabaseMarkets = useCallback(async () => {
     setIsLoadingSupabase(true);
     try {
@@ -67,10 +65,8 @@ export function useMarkets(options: UseMarketsOptions = {}): UseMarketsResult {
     fetchSupabaseMarkets();
   }, [fetchSupabaseMarkets]);
 
-  // Формируем массив ID для мультивызова контракта
   const marketIds = useMemo(() => supabaseMarkets.map(m => BigInt(m.id)), [supabaseMarkets]);
 
-  // Мультивызов getMarket для получения актуальных ончейн-данных
   const contracts = marketIds.map(id => ({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI ,
@@ -83,14 +79,12 @@ export function useMarkets(options: UseMarketsOptions = {}): UseMarketsResult {
     query: { enabled: marketIds.length > 0 },
   });
 
-  // Объединяем данные Supabase и блокчейна
   const markets = useMemo(() => {
     if (!supabaseMarkets.length) return [];
     
     return supabaseMarkets.map((meta, index) => {
       const onchain = onchainData?.[index]?.result;
       
-      // Если ончейн-данные ещё не загружены, используем кэшированные из Supabase
       const totalYes = onchain ? (onchain as any)[4] : BigInt(meta.total_yes || 0);
       const totalNo = onchain ? (onchain as any)[5] : BigInt(meta.total_no || 0);
       const totalPool = onchain ? (onchain as any)[6] : BigInt(meta.total_pool || 0);
@@ -100,7 +94,6 @@ export function useMarkets(options: UseMarketsOptions = {}): UseMarketsResult {
       const outcomeMap = ['Undecided', 'Yes', 'No', 'Cancelled'];
       const outcome = onchain ? outcomeMap[Number((onchain as any)[3])] : outcomeMap[meta.outcome] || 'Undecided';
       
-      // Вычисляем цену Yes (вероятность)
       const yesPrice = totalPool > 0 ? Number(totalYes) / Number(totalPool) : 0.5;
       const noPrice = 1 - yesPrice;
       

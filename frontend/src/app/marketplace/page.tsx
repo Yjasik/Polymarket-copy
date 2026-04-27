@@ -6,7 +6,6 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useMarkets } from '@/hooks/useMarkets';
 import { Filter, Search } from 'lucide-react';
 
-// Категории для фильтрации (можно вынести в константы)
 const categories = ['All', 'Sports', 'Politics', 'Crypto', 'World'];
 
 export default function MarketplacePage() {
@@ -19,14 +18,12 @@ export default function MarketplacePage() {
     sortBy,
   });
 
-  // Фильтрация по поисковому запросу (можно делать на клиенте или на бэкенде)
   const filteredMarkets = markets?.filter((market) =>
     market.question.toLowerCase().includes(searchTerm.toLowerCase())
   ) ?? [];
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Заголовок и строка поиска/фильтров */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Marketplace</h1>
 
@@ -47,7 +44,6 @@ export default function MarketplacePage() {
         </div>
       </div>
 
-      {/* Категории */}
       <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-200 pb-4 dark:border-gray-800">
         {categories.map((category) => (
           <button
@@ -64,7 +60,6 @@ export default function MarketplacePage() {
         ))}
       </div>
 
-      {/* Сортировка */}
       <div className="mb-6 flex items-center justify-end">
         <select
           value={sortBy}
@@ -77,7 +72,6 @@ export default function MarketplacePage() {
         </select>
       </div>
 
-      {/* Сетка рынков */}
       {isLoading ? (
         <div className="flex justify-center py-12">
           <LoadingSpinner size="lg" />

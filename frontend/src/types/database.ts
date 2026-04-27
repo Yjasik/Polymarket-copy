@@ -1,5 +1,3 @@
-// frontend/src/types/database.ts
-
 export type Json =
   | string
   | number
@@ -114,7 +112,6 @@ export interface Database {
   }
 }
 
-// Вспомогательные типы для удобства использования
 export type MarketRow = Database['public']['Tables']['markets']['Row']
 export type MarketInsert = Database['public']['Tables']['markets']['Insert']
 export type MarketUpdate = Database['public']['Tables']['markets']['Update']

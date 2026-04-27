@@ -1,4 +1,3 @@
-// frontend/src/hooks/useMarketActions.ts
 'use client';
 
 import { useState } from 'react';
@@ -50,7 +49,6 @@ export function useMarketActions(options: UseMarketActionsOptions) {
     onSuccess?.(action, hash);
   };
 
-  // Сделать ставку (Yes или No)
   const placeBet = async (outcome: boolean, amountEth: string) => {
     const action = `Bet ${outcome ? 'Yes' : 'No'}`;
     if (!address) {
@@ -77,7 +75,6 @@ export function useMarketActions(options: UseMarketActionsOptions) {
     }
   };
 
-  // Забрать выигрыш
   const claimWinnings = async () => {
     const action = 'Claim Winnings';
     if (!address) {
@@ -98,7 +95,6 @@ export function useMarketActions(options: UseMarketActionsOptions) {
     }
   };
 
-  // Разрешить рынок (только для оракула/админа)
   const resolveMarket = async (outcomeYes: boolean) => {
     const action = `Resolve Market (${outcomeYes ? 'Yes' : 'No'})`;
     if (!address) {
@@ -119,7 +115,6 @@ export function useMarketActions(options: UseMarketActionsOptions) {
     }
   };
 
-  // Обработка подтверждения транзакции
   if (isConfirmed && txHash && pendingAction) {
     handleConfirmation(pendingAction, txHash);
   }

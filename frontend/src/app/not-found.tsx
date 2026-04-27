@@ -1,4 +1,3 @@
-// frontend/src/app/not-found.tsx
 import Link from 'next/link';
 import { FileQuestion } from 'lucide-react';
 

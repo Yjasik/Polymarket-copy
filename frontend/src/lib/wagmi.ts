@@ -1,4 +1,3 @@
-// frontend/src/lib/wagmi.ts
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { sepolia, mainnet } from 'wagmi/chains';
 import { http } from 'viem';
@@ -11,5 +10,5 @@ export const config = getDefaultConfig({
     [sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL),
     [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_RPC_URL),
   },
-  ssr: false, // Включаем поддержку SSR (Next.js)
+  ssr: false, 
 });

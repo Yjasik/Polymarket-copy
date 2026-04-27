@@ -1,7 +1,6 @@
-// import { MarketCard } from '@/components/market/MarketCard';
-// frontend/src/app/page.tsx
 import Link from 'next/link';
 import { ArrowRight, TrendingUp, Shield, Zap } from 'lucide-react';
+import { LatestMarketsSection } from '@/components/market/LatestMarketsSection';
 
 export default function HomePage() {
   return (
@@ -85,16 +84,9 @@ export default function HomePage() {
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="h-32 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
-            <div className="h-32 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
-            <div className="h-32 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
-          </div>
+          <LatestMarketsSection />
         </section>
       </div>
     </div>
   );
 }
-
-// Клиентский компонент для отображения рынков с блокчейна
-// import { LatestMarketsSection } from '@/components/market/LatestMarketsSection';

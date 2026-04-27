@@ -1,4 +1,3 @@
-// frontend/src/app/market/[id]/page.tsx
 'use client';
 
 import { useParams } from 'next/navigation';
@@ -23,12 +22,10 @@ export default function MarketDetailPage() {
   const marketId = BigInt(params.id as string);
   const { address, isConnected } = useAccount();
 
-  // ---- Supabase: изображение и история цен ----
   const [metaImage, setMetaImage] = useState<string | null>(null);
   const [metaLoading, setMetaLoading] = useState(true);
   const [priceHistory, setPriceHistory] = useState<{ time: number; value: number }[]>([]);
 
-  // Загрузка метаданных рынка (image_uri)
   useEffect(() => {
     const fetchMeta = async () => {
       setMetaLoading(true);
@@ -45,7 +42,6 @@ export default function MarketDetailPage() {
     fetchMeta();
   }, [marketId]);
 
-  // Загрузка истории цен
   const fetchPriceHistory = useCallback(async () => {
     const { data, error } = await supabase
       .from('user_bets')
@@ -65,7 +61,6 @@ export default function MarketDetailPage() {
     fetchPriceHistory();
   }, [fetchPriceHistory]);
 
-  // ---- Блокчейн ----
   const { data: marketData, isLoading: isLoadingMarket, error: marketError } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
@@ -84,12 +79,10 @@ export default function MarketDetailPage() {
   const { writeContractAsync, data: txHash, isPending: isTxPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
-  // Локальное состояние для формы ставки
   const [betAmount, setBetAmount] = useState('');
   const [betOutcome, setBetOutcome] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Парсинг данных рынка
   type MarketDataTuple = [string, string, bigint, number, bigint, bigint, bigint, boolean, boolean];
   const market = marketData
     ? {
@@ -112,7 +105,6 @@ export default function MarketDetailPage() {
   const totalPool = market?.totalPool ?? 0n;
   const yesPrice = totalPool > 0n ? Number(market?.totalYes ?? 0n) / Number(totalPool) : 0.5;
 
-  // Сохранение ставки в Supabase после подтверждения транзакции
   const saveBetToSupabase = useCallback(async () => {
     if (!txHash || !address || !betAmount || !market) return;
     const { error } = await supabase.from('user_bets').insert({
@@ -124,7 +116,7 @@ export default function MarketDetailPage() {
       yes_price: yesPrice,
     });
     if (!error) {
-      fetchPriceHistory(); // обновить график
+      fetchPriceHistory(); 
     } else {
       console.error('Failed to save bet to Supabase:', error);
     }
@@ -134,11 +126,10 @@ export default function MarketDetailPage() {
     if (isConfirmed && txHash) {
       saveBetToSupabase();
       refetchBets();
-      setBetAmount(''); // очистить поле после сохранения
+      setBetAmount(''); 
     }
   }, [isConfirmed, txHash, saveBetToSupabase, refetchBets]);
 
-  // Отправка ставки
   const handleBet = async () => {
     setError(null);
     if (!betAmount || parseFloat(betAmount) <= 0) {
@@ -158,7 +149,6 @@ export default function MarketDetailPage() {
     }
   };
 
-  // Клейм выигрыша
   const handleClaim = async () => {
     try {
       setError(null);
@@ -174,7 +164,6 @@ export default function MarketDetailPage() {
     }
   };
 
-  // UI состояния загрузки
   if (isLoadingMarket || metaLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -230,7 +219,6 @@ export default function MarketDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Информационная карточка */}
           <div className="rounded-lg border bg-white p-6 dark:bg-gray-950 dark:border-gray-800">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
@@ -267,14 +255,11 @@ export default function MarketDetailPage() {
               </div>
             </div>
           </div>
-
-          {/* График вероятности */}
           <PriceChart
             data={priceHistory.length > 0 ? priceHistory : undefined}
             currentPrice={priceHistory.length === 0 ? yesPrice : undefined}
           />
 
-          {/* Ставки пользователя */}
           {isConnected && (userBetYes > 0n || userBetNo > 0n) && (
             <div className="rounded-lg border bg-white p-6 dark:bg-gray-950 dark:border-gray-800">
               <h3 className="font-semibold mb-3">Your Position</h3>
@@ -315,7 +300,6 @@ export default function MarketDetailPage() {
           )}
         </div>
 
-        {/* Боковая колонка – форма ставки (без TradingPanel) */}
         {!market.resolved && (
           <div className="rounded-lg border bg-white p-6 dark:bg-gray-950 dark:border-gray-800">
             <h3 className="font-semibold mb-4">Place a Bet</h3>
@@ -323,7 +307,6 @@ export default function MarketDetailPage() {
               <p className="text-sm text-gray-500">Connect wallet to bet.</p>
             ) : (
               <div className="space-y-4">
-                {/* Выбор исхода */}
                 <div>
                   <label className="text-sm font-medium">Choose outcome</label>
                   <div className="mt-2 flex gap-2">
@@ -351,8 +334,6 @@ export default function MarketDetailPage() {
                     </button>
                   </div>
                 </div>
-
-                {/* Сумма ETH */}
                 <div>
                   <label className="text-sm font-medium">Amount (ETH)</label>
                   <input

@@ -14,7 +14,6 @@ import Link from 'next/link';
 const ADMIN_ROLE = '0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775';
 const CONTRACT_ABI = predictionMarketAbi.abi as Abi;
 
-// Публичный клиент для чтений вне хуков
 const publicClient = createPublicClient({
   chain: sepolia,
   transport: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL),
@@ -66,7 +65,6 @@ export default function AdminPage() {
 
   setIsSubmitting(true);
   try {
-    // 1. Получаем текущий marketId (с fallback для разработки)
     let currentId: bigint;
     try {
       currentId = await publicClient.readContract({
@@ -76,11 +74,9 @@ export default function AdminPage() {
       }) as bigint;
     } catch (err) {
       console.warn('Using fallback ID, contract read failed:', err);
-      // Для разработки, если контракт недоступен, генерируем временный ID
       currentId = BigInt(Date.now());
     }
 
-    // 2. Отправляем транзакцию
     const hash = await writeContractAsync({
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
@@ -94,7 +90,6 @@ export default function AdminPage() {
     });
     setTxHash(hash);
 
-    // 3. Сохраняем в Supabase
     const { error: insertError } = await supabase.from('markets').insert({
       id: Number(currentId),
       question: formData.question,
@@ -114,7 +109,7 @@ export default function AdminPage() {
       console.error('Supabase insert error:', insertError);
       setError(`Contract created, but failed to save metadata: ${insertError.message}`);
     } else {
-      // Очищаем форму только если Supabase записался
+
       setFormData({ question: '', description: '', imageUri: '', endTime: '' });
     }
   } catch (err: any) {

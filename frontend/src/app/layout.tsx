@@ -1,6 +1,5 @@
 
 import type { Metadata } from 'next';
-import { Providers } from './providers';
 import { Navbar } from '@/components/layout/Navbar';
 import dynamic from 'next/dynamic';
 import '@/styles/globals.css';

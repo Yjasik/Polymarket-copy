@@ -1,4 +1,3 @@
-// frontend/src/components/market/MarketGrid.tsx
 'use client';
 
 import { Market } from '@/types';

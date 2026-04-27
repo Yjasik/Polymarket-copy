@@ -1,4 +1,3 @@
-// frontend/src/components/charts/PriceChart.tsx
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -11,14 +10,12 @@ interface PriceChartProps {
   className?: string;
 }
 
-// Утилита для уникальности временных меток
 function ensureUniqueTimes(
   points: { time: number; value: number }[]
 ): { time: number; value: number }[] {
   const seen = new Set<number>();
   return points.map((point) => {
     let t = point.time;
-    // Если такое время уже было, увеличиваем на 1, пока не станет уникальным
     while (seen.has(t)) {
       t += 1;
     }
@@ -32,7 +29,6 @@ export function PriceChart({ data, currentPrice, className }: PriceChartProps) {
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Line'> | null>(null);
 
-  // Инициализация графика
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
@@ -86,7 +82,6 @@ export function PriceChart({ data, currentPrice, className }: PriceChartProps) {
     };
   }, []);
 
-  // Обновление данных
   useEffect(() => {
     if (!seriesRef.current) return;
 

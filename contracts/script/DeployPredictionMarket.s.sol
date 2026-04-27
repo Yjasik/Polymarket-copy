@@ -9,7 +9,7 @@ contract DeployPredictionMarket is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address admin = vm.addr(deployerPrivateKey);
-        address oracle = admin; // или другой адрес
+        address oracle = admin; 
 
         vm.startBroadcast(deployerPrivateKey);
         PredictionMarket market = new PredictionMarket(admin, oracle);

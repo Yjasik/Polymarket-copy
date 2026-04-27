@@ -19,8 +19,7 @@ export function Navbar() {
   const { address, isConnected } = useAccount();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Можно добавить проверку роли администратора из контекста или хука
-  const isAdmin = true; // Заглушка, позже замените на реальную проверку
+  const isAdmin = true; 
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">

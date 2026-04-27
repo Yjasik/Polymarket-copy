@@ -15,9 +15,8 @@ export interface Market {
   category?: string;
   createdAt?: string;
   volume24h?: bigint;
-  lastTradePrice?: number;       // цена "Yes" в ETH (0-1)
+  lastTradePrice?: number;      
   
-  // Вычисляемые поля (заполняются на клиенте)
   yesPrice?: number;
   noPrice?: number;
   volumeFormatted?: string;

@@ -1,4 +1,3 @@
-// frontend/src/app/dashboard/page.tsx
 'use client';
 
 import { useMemo } from 'react';
@@ -20,10 +19,8 @@ export default function DashboardPage() {
   const { writeContractAsync } = useWriteContract();
   const { markets, isLoading: isLoadingMarkets, error: marketsError } = useMarkets({ limit: 50, filterResolved: false }); // загружаем все неразрешённые, но также добавим и разрешённые позже
 
-  // Формируем массив marketId для batch‑запроса getUserBets
   const marketIds = useMemo(() => markets?.map((m) => m.id) ?? [], [markets]);
 
-  // Мультизапрос к контракту: для каждого рынка получаем ставки текущего пользователя
   const { data: betsData, isLoading: isLoadingBets, error: betsError } = useReadContracts({
     contracts: marketIds.map((id) => ({
       address: CONTRACT_ADDRESS,
@@ -34,7 +31,6 @@ export default function DashboardPage() {
     query: { enabled: marketIds.length > 0 && !!address },
   });
 
-  // Объединяем информацию о рынках и ставках
   const userBets = useMemo(() => {
     if (!markets || !betsData) return [];
     return markets
@@ -52,13 +48,11 @@ export default function DashboardPage() {
       .filter(Boolean) as { market: Market; betYes: bigint; betNo: bigint }[];
   }, [markets, betsData]);
 
-  // Суммарная статистика
   const totalVolume = useMemo(
     () => userBets.reduce((sum, b) => sum + b.betYes + b.betNo, 0n),
     [userBets]
   );
 
-  // Обработчик клейма выигрыша
   const handleClaim = async (marketId: bigint) => {
     try {
       await writeContractAsync({
@@ -67,7 +61,6 @@ export default function DashboardPage() {
         functionName: 'claimWinnings',
         args: [marketId],
       });
-      // Можно показать тост об успехе (useMarketActions или аналогично)
     } catch (err) {
       console.error(err);
     }
@@ -110,7 +103,6 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Краткая статистика */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-lg border p-4 text-center">
           <Coins className="mx-auto h-5 w-5 text-blue-500" />
